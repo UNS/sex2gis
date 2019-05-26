@@ -10,11 +10,12 @@ var server = require('http').createServer()
 const BodyParser = require('body-parser')
 
 server.on('request', app);
+const router = express.Router();
 
-app.use(BodyParser.urlencoded({extended: true}));
-app.use(BodyParser.json());
-app.get('/', (req, res) => res.send('online'))
-app.post('/dialogflow', express.json(), (req, res) => {
+router.use(BodyParser.urlencoded({extended: true}));
+router.use(BodyParser.json());
+
+router.post('/dialogflow', express.json(), (req, res) => {
   const agent = new WebhookClient({ request: req, response: res })
 
   function welcome () {
@@ -26,6 +27,9 @@ app.post('/dialogflow', express.json(), (req, res) => {
   intentMap.set('Default Welcome Intent', welcome)
   agent.handleRequest(intentMap)
 })
+
+app.use('/', router);
+
 var path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 server.listen(port, () => {
