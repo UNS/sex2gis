@@ -8,6 +8,9 @@
     </head>
     <body>
         <script type="text/javascript">
+            let defaultLocation = 'Гатчина, ул.Соборная'
+            let response;
+
             let socket = new WebSocket("ws://localhost:8080")
             socket.onopen = (e) => {
               console.log("ws open")
@@ -16,6 +19,7 @@
             
             socket.onmessage = (e) => {
               console.log(`Recived: ${e.data}`)
+              response = e.data
             }
 
             socket.onclose = (e) => {
@@ -31,7 +35,7 @@
             }
 
             ymaps.ready(init);
-            function init(){ 
+            function init(){
               var myMap = new ymaps.Map("map", {
                 center: [559.562579, 30.106305],
                 zoom: 14,
@@ -39,8 +43,8 @@
               });
 
               function decoder(location) {
-                return new Promise((resolve, reject) => {
-                  (location) => {
+                //return new Promise((resolve, reject) => {
+                 // (location) => {
                     var myGeocoder = ymaps.geocode(location, { results: 1 });
     
                     myGeocoder.then(function(res) { 
@@ -62,9 +66,9 @@
                       });
                   
                     });
-                    resolve()
-                  }
-                })
+                    //resolve()
+                  //}
+                //})
               }
 
               
@@ -92,8 +96,20 @@
                 myMap.geoObjects.add(multiRoute);
               }
               
-              decoder('Гатчина, ул.Соборная')
-              createPath('Гатчина, ул.Соборная', 'Гатчина, Балтийский вокзал')
+              decoder(defaultLocation)
+
+              if (response) {
+                switch(response.data) {
+                  case 'Hello':
+                    createPath(defaultLocation, 'Гатчина, Проспект 25 октября');
+                    break;
+                  default:
+                    decoder(defaultLocation);
+                }
+              }
+
+              
+              //createPath(defaultLocation, 'Гатчина, Балтийский вокзал')
             }
             
             </script>
