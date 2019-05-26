@@ -34,4 +34,21 @@ var path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 server.listen(port, () => {
     console.log(`sex2gis app is running on port ${port}`);
-})
+});
+
+var client;
+wss.on('connection', function connection(ws) {
+    console.log('Hello');
+    client = ws;
+    ws.on('message', function incoming(message) {
+        console.log("Message [" + message + "] ");
+    });
+
+    ws.on('close', function close() {
+        ws.send("Bye\r\n");
+        client = null;
+        console.log('disconnected');
+        ws.close();
+    });
+});
+
