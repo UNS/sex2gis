@@ -7,33 +7,11 @@
         </script>
     </head>
     <body>
-        <script type="text/javascript">
+      <script type="text/javascript">
             let defaultLocation = 'Гатчина, ул.Соборная'
-            let response;
-
-            let socket = new WebSocket("ws://localhost:8080")
-            socket.onopen = (e) => {
-              console.log("ws open")
-              //socket.send('Connection')
-            }
+            //let response;
             
-            socket.onmessage = (e) => {
-              console.log(`Recived: ${e.data}`)
-              response = e.data
-            }
-
-            socket.onclose = (e) => {
-              if (e.wasClean) {
-                console.log('connection closed clearly')
-              } else {
-                console.log('connection died')
-              }
-            }
-
-            socket.onerror = (e) => {
-              console.log(e.message)
-            }
-
+            
             ymaps.ready(init);
             function init(){
               var myMap = new ymaps.Map("map", {
@@ -41,10 +19,10 @@
                 zoom: 14,
                 controls: []
               });
-
+              
               function decoder(location) {
                 //return new Promise((resolve, reject) => {
-                 // (location) => {
+                  // (location) => {
                     var myGeocoder = ymaps.geocode(location, { results: 1 });
     
                     myGeocoder.then(function(res) { 
@@ -56,21 +34,21 @@
                       firstGeoObject.options.set('preset', 'islands#darkBlueDotIconWithCaption');
                       // Получает строку с адресом и выводим в иконке геообъекта.
                       firstGeoObject.properties.set('iconCaption', firstGeoObject.getAddressLine());
-        
+                      
                       // Добавляет первый найденный геообъект на карту.
                       myMap.geoObjects.add(firstGeoObject);
                       // Масштабирует карту на область видимости геообъекта.
                       myMap.setBounds(bounds, {
-                          // Проверяет наличие тайлов на данном масштабе.
+                        // Проверяет наличие тайлов на данном масштабе.
                           checkZoomRange: true
+                        });
+                        
                       });
-                  
-                    });
                     //resolve()
-                  //}
+                    //}
                 //})
               }
-
+              
               
               function createPath(start, end) {
                 // Построение маршрута.
@@ -78,7 +56,7 @@
                 var multiRoute = new ymaps.multiRouter.MultiRoute({   
                   // Точки маршрута. Точки могут быть заданы как координатами, так и адресом. 
                   referencePoints: [
-                        start,
+                    start,
                         end,
                         //[55.734876, 37.59308], // улица Льва Толстого.
                       ],
@@ -91,25 +69,55 @@
                   // чтобы маршрут был виден целиком.
                   boundsAutoApply: true
                 });
-
+                
                 // Добавление маршрута на карту.
                 myMap.geoObjects.add(multiRoute);
               }
               
-              decoder(defaultLocation)
+              // decoder(defaultLocation)
+              
+              
+              handleMessage('init')
 
-              if (response) {
-                switch(response.data) {
-                  case 'Hello':
+              function handleMessage(message) {
+                switch(message) {
+                  case 'hello':
+                    setTimeout(()=>createPath(defaultLocation, 'Гатчина, ул.Володарского, 17'), 0)
+                    break;
+                  case 'onopen':
                     createPath(defaultLocation, 'Гатчина, Проспект 25 октября');
                     break;
+                  case 'routeToLib':
+                    createPath(defaultLocation, 'Гатчина, ул.Володарского, 17')
                   default:
                     decoder(defaultLocation);
                 }
               }
-
               
               //createPath(defaultLocation, 'Гатчина, Балтийский вокзал')
+              let socket = new WebSocket("ws://localhost:8080")
+              socket.onopen = (e) => {
+                console.log("ws open")
+                //socket.send('Connection')
+                //handleMessage('onopen')
+              }
+              
+              socket.onmessage = (e) => {
+                console.log(`Recived: ${e.data}`)
+                handleMessage(e.data)
+              }
+              
+              socket.onclose = (e) => {
+                if (e.wasClean) {
+                  console.log('connection closed clearly')
+                } else {
+                  console.log('connection died')
+                }
+              }
+  
+              socket.onerror = (e) => {
+                console.log(e.message)
+              }
             }
             
             </script>

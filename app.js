@@ -19,12 +19,15 @@ router.post('/dialogflow', express.json(), (req, res) => {
   const agent = new WebhookClient({ request: req, response: res })
 
   function welcome () {
-	console.log("Hello intent");
-    agent.add('Welcome to my agent!')
+  console.log("send message");
+  if (client != null) {
+    client.send("hello");
+  }
+    agent.add('посмотри на карту')
   }
 
   let intentMap = new Map()
-  intentMap.set('Default Welcome Intent', welcome)
+  intentMap.set('Route', welcome)
   agent.handleRequest(intentMap)
 })
 
