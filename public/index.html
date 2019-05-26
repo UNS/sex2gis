@@ -10,7 +10,24 @@
         <script type="text/javascript">
             let socket = new WebSocket("ws://localhost:8080")
             socket.onopen = (e) => {
-              console.log(e)
+              console.log("ws open")
+              //socket.send('Connection')
+            }
+            
+            socket.onmessage = (e) => {
+              console.log(`Recived: ${e.data}`)
+            }
+
+            socket.onclose = (e) => {
+              if (e.wasClean) {
+                console.log('connection closed clearly')
+              } else {
+                console.log('connection died')
+              }
+            }
+
+            socket.onerror = (e) => {
+              console.log(e.message)
             }
 
             ymaps.ready(init);
@@ -82,6 +99,7 @@
             </script>
         <link rel="stylesheet" href="./css/style.css">
         <div id="map" style="width: 100%; height: 100vh"></div>
+        <!-- <button onclick="SpeechRecognition()" class="button">Start</button> -->
         <!-- <script src='./js/index.js'></script> -->
     </body>
 </html>
